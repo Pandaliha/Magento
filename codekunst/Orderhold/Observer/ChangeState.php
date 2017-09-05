@@ -38,7 +38,7 @@ class ChangeState implements \Magento\Framework\Event\ObserverInterface {
 
         $order = $observer->getEvent()->getOrder();
         $order_id = $order->getID();
-        $order = $observer->getOrder();
+        //$order = $observer->getOrder();
 
         //order can't be placed at all
 		//try {
@@ -65,7 +65,7 @@ class ChangeState implements \Magento\Framework\Event\ObserverInterface {
             $order->hold()->save();
 
           //}
-          $order->sendNewOrderEmail();
+
 
         //die();
     }
