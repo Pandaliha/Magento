@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <carriers>
+            <shippingmethod>
+                <active>1</active>
+                <sallowspecific>0</sallowspecific>
+                <model>codekunst\Dropshipping\Model\Carrier\Method</model>
+                <name>Dropshipping</name>
+                <price>1.00</price>
+                <title>Dropshipping</title>
+                <!-- Price per Item as defined in Model/Config/SourceMethod.php -->
+                <type>I</type>
+                <specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.</specificerrmsg>
+                <!-- <handling_type>F</handling_type> -->
+            </shippingmethod>
+        </carriers>
+    </default>
+</config>
