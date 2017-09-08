@@ -1,2 +1,5 @@
-<!--@subject Promopoup@-->
-{{trans "My var: %myVar" myVar=$data.myvar}}
+<!--@subject Bestellung bestätigen@-->
+Guten Tag {{var data.custName|raw}}!
+
+Bitte bestätigen Sie Ihre Bestellung vom {{var data.report_date|raw}}:
+{{var data.confirm|raw}}
