@@ -1,5 +1,7 @@
 <!--@subject Bestellung bestätigen@-->
-Guten Tag {{var data.custName|raw}}!
+Guten Tag {{var data.name|raw}}!
 
-Bitte bestätigen Sie Ihre Bestellung vom {{var data.report_date|raw}}:
+Bitte bestätigen Sie die Bestellung Nr. {{var data.ordernum|raw}} vom {{var data.report_date|raw}}:
 {{var data.confirm|raw}}
+Mit freundlichen Grüßen,
+{{var data.shopowner|raw}}
