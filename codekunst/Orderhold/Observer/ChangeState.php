@@ -3,6 +3,10 @@ namespace codekunst\Orderhold\Observer;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\Mail\Template\TransportBuilder;
+use Magento\Customer\Model\Customer;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\ObjectManager\ObjectManager;
 class ChangeState implements \Magento\Framework\Event\ObserverInterface {
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
@@ -13,31 +17,27 @@ class ChangeState implements \Magento\Framework\Event\ObserverInterface {
      */
     protected $_transportBuilder;
     /** @var \Magento\Framework\Logger\Monolog */
-    protected $_logger;
+    //protected $_logger;
     /**
      * @var \Magento\Framework\ObjectManager\ObjectManager
      */
     protected $_objectManager;
-    protected $_checkoutSession;
+    //protected $_checkoutSession;
     protected $scopeConfig;
 
     public function __construct(
-        \Magento\Customer\Model\Customer $customer,
+        Customer $customer,
         TransportBuilder $transportBuilder,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\App\Action\Context $context,
+        StoreManagerInterface $storeManager,
+        Context $context,
         ScopeConfigInterface $scopeConfig,
-        \Psr\Log\LoggerInterface $loggerInterface,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\ObjectManager\ObjectManager $objectManager
+        ObjectManager $objectManager
     ) {
         $this->customer =$customer;
         $this->storeManager = $storeManager;
         $this->_transportBuilder = $transportBuilder;
         $this->scopeConfig = $scopeConfig;
-        $this->_logger = $loggerInterface;
         $this->_objectManager = $objectManager;
-        $this->_checkoutSession = $checkoutSession;
     }
     public function sendEmail($name, $email, $custEmail, $data)
     {
@@ -67,22 +67,26 @@ class ChangeState implements \Magento\Framework\Event\ObserverInterface {
     public function execute(\Magento\Framework\Event\Observer $observer ) {
         $order = $observer->getEvent()->getOrder();
         $orderID = $order->getIncrementId();
-        $custEmail = $order->getCustomerEmail();
-        $custName = $order->getCustomerName();
-        $email = $this->scopeConfig->getValue('trans_email/ident_general/email', ScopeInterface::SCOPE_STORE);
-        $name = $this->scopeConfig->getValue('trans_email/ident_general/name', ScopeInterface::SCOPE_STORE);
+        $emailCustomer = $order->getCustomerEmail();
+        $nameCustomer = $order->getBillingAddress()->getFirstName();
+
+        $emailSender = $this->scopeConfig->getValue('trans_email/ident_general/email', ScopeInterface::SCOPE_STORE);
+        $nameSender = $this->scopeConfig->getValue('trans_email/ident_general/name', ScopeInterface::SCOPE_STORE);
+
 
         $baseURL = $this->storeManager->getStore()->getBaseUrl();
-        $confirmURL = $baseURL . "confirm/Order/OrderConfirm/id/" . $orderID;
+        $confirmURL = $baseURL . "accept/index/index?id=" . $orderID;
         $data = [
             'report_date' => date("j F Y", strtotime('-1 day')),
-            'name' => $custName,
+            'name' => $nameCustomer,
             'ordernum' => $orderID,
             'confirm' => $confirmURL,
-            'shopowner' => $name
+            'shopowner' => $nameSender
         ];
-        $this->sendEmail($email, $name, $custEmail, $data);
-        $order->hold()->save();
+        if("shippingmethod_shippingmethod" == $order->getShippingMethod()) {
+            $this->sendEmail($emailSender, $nameSender, $emailCustomer, $data);
+            $order->hold()->save();
+        }
         //exit();
     }
 }
